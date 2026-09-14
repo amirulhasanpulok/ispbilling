@@ -1,28 +1,37 @@
 import React, { useState } from 'react';
 import {
   Users,
-  CheckCircle,
-  AlertTriangle,
-  Clock,
-  Wifi,
-  Ban,
-  Calendar,
-  Building,
-  ArrowUpRight,
-  CreditCard,
-  PhoneCall,
-  DollarSign,
-  TrendingUp,
-  RefreshCw,
-  ExternalLink,
-  Mail,
-  CheckSquare,
-  Hourglass,
-  XCircle,
+  Activity,
+  UserMinus,
+  Gift,
   UserPlus,
-  UserX,
+  RotateCcw,
+  PowerOff,
+  LogOut,
+  Receipt,
+  CreditCard,
+  Coins,
+  AlertCircle,
+  Wifi,
+  Timer,
+  CalendarX,
   ShieldAlert,
-  Ticket
+  Building2,
+  Network,
+  ToggleRight,
+  ToggleLeft,
+  Wallet,
+  Send,
+  MailCheck,
+  MailX,
+  Ticket,
+  Headphones,
+  ClipboardList,
+  Wrench,
+  ArrowUpRight,
+  TrendingUp,
+  ExternalLink,
+  PhoneCall
 } from 'lucide-react';
 import { Client, BillRecord } from '../types';
 
@@ -57,9 +66,9 @@ const DashboardMetricCard: React.FC<DashboardMetricCardProps> = ({
 }) => {
   const colorMap = {
     green: {
-      bg: 'bg-[#28a745]',
-      footer: 'bg-[#218838]',
-      hover: 'hover:bg-[#23923d]'
+      bg: 'bg-[#2ecc71]',
+      footer: 'bg-[#27ae60]',
+      hover: 'hover:bg-[#25b863]'
     },
     cyan: {
       bg: 'bg-[#00c0ef]',
@@ -206,7 +215,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </button>
           <button
             onClick={() => onNavigate('mikrotik-monitor')}
-            className="px-3 py-1.5 bg-[#28a745] hover:bg-[#218838] text-white text-xs font-semibold rounded shadow-xs flex items-center gap-1.5 transition-colors"
+            className="px-3 py-1.5 bg-[#2ecc71] hover:bg-[#27ae60] text-white text-xs font-semibold rounded shadow-xs flex items-center gap-1.5 transition-colors"
           >
             <Wifi className="w-3.5 h-3.5" />
             <span>Live Bandwidth Monitor</span>
@@ -235,7 +244,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-white">
           <DashboardMetricCard
             color="green"
-            icon={<Mail className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<Wallet className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="SMS BALANCE"
             value="967.58"
             footerText="Total SMS Reamaining Balance"
@@ -243,7 +252,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="cyan"
-            icon={<CheckSquare className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<Send className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="TODAYS SEND"
             value="20"
             footerText="Total SMS Send Today"
@@ -251,7 +260,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="orange"
-            icon={<Hourglass className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<MailCheck className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="THIS MONTH SEND"
             value="741"
             footerText="Total SMS Send in This Month"
@@ -259,7 +268,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="red"
-            icon={<XCircle className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<MailX className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="THIS MONTH FAILED"
             value="198"
             footerText="Total SMS Sending failed in This Month"
@@ -289,7 +298,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="cyan"
-            icon={<CheckCircle className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<Activity className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="RUNNING CLIENTS"
             value={runningClients.toLocaleString()}
             footerText="Active Online Subscriptions"
@@ -297,7 +306,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="orange"
-            icon={<AlertTriangle className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<UserMinus className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="INACTIVE CLIENTS"
             value={inactiveClients}
             footerText="Temporarily Inactive Lines"
@@ -305,7 +314,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="red"
-            icon={<Clock className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<Gift className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="WAIVER CLIENTS"
             value={waiverClients}
             footerText="Waiver &amp; Special Cases"
@@ -324,7 +333,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="cyan"
-            icon={<RefreshCw className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<RotateCcw className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="RENEWED CLIENTS"
             value="30"
             footerText="Monthly Renewals Processed"
@@ -332,7 +341,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="orange"
-            icon={<Ban className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<PowerOff className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="DEACTIVATED CLIENTS"
             value="48"
             footerText="Deactivated Subscriptions"
@@ -340,7 +349,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="red"
-            icon={<UserX className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<LogOut className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="LEFT CLIENTS"
             value="254"
             badge="Historical"
@@ -351,7 +360,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Row 3 */}
           <DashboardMetricCard
             color="green"
-            icon={<DollarSign className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<Receipt className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="BILLING CLIENTS"
             value={billingClients}
             footerText="Total Generated Monthly Invoices"
@@ -368,7 +377,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="orange"
-            icon={<Clock className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<Coins className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="PARTIALLY PAID"
             value="0"
             footerText="৳0.00 Partial Dues Pending"
@@ -376,7 +385,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="red"
-            icon={<AlertTriangle className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<AlertCircle className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="UNPAID CLIENTS"
             value={unpaidClients}
             badge="Action Due"
@@ -396,7 +405,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="cyan"
-            icon={<Clock className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<Timer className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="UNPAID EXTENSION"
             value="1"
             badge="Grace"
@@ -405,7 +414,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="orange"
-            icon={<Calendar className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<CalendarX className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="BILL DATE EXPIRE"
             value="4"
             footerText="Billing Validity Expired Lines"
@@ -423,7 +432,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Row 5 */}
           <DashboardMetricCard
             color="green"
-            icon={<Building className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<Building2 className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="TOTAL POP"
             value="1"
             footerText="Active Subzone Distribution Centers"
@@ -431,7 +440,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="cyan"
-            icon={<Users className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<Network className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="TOTAL POP CLIENTS"
             value="115"
             footerText="Reseller Downstream Clients"
@@ -439,7 +448,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="orange"
-            icon={<CheckCircle className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<ToggleRight className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="ENABLED POP CLIENTS"
             value="38"
             footerText="Active Downstream Subscribers"
@@ -447,7 +456,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           />
           <DashboardMetricCard
             color="red"
-            icon={<Ban className="w-11 h-11 text-white/95 stroke-[1.75]" />}
+            icon={<ToggleLeft className="w-11 h-11 text-white/95 stroke-[1.75]" />}
             label="DISABLED POP CLIENTS"
             value="77"
             footerText="Disabled Downstream Lines"
@@ -486,7 +495,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   cy="18"
                   r="15.91549430918954"
                   fill="transparent"
-                  stroke="#28a745"
+                  stroke="#2ecc71"
                   strokeWidth="4.5"
                   strokeDasharray="40 60"
                   strokeDashoffset="-37.5"
@@ -527,7 +536,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span className="text-slate-600 truncate">Saddam Mor (37.5%)</span>
               </div>
               <div className="flex items-center space-x-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#28a745]"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-[#2ecc71]"></span>
                 <span className="text-slate-600 truncate">College Para (40%)</span>
               </div>
               <div className="flex items-center space-x-1.5">
@@ -640,7 +649,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className="rounded overflow-hidden shadow-xs flex flex-col justify-between bg-[#f39c12] hover:bg-[#e08e0b] text-white cursor-pointer transition-colors"
             >
               <div className="p-2.5 flex items-center justify-between">
-                <Clock className="w-6 h-6 text-white/90 stroke-[1.75]" />
+                <Headphones className="w-6 h-6 text-white/90 stroke-[1.75]" />
                 <div className="text-right">
                   <span className="block text-[10px] uppercase font-bold text-white/90 leading-none">
                     Processing Tickets
@@ -658,7 +667,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className="rounded overflow-hidden shadow-xs flex flex-col justify-between bg-[#dd4b39] hover:bg-[#d73925] text-white cursor-pointer transition-colors"
             >
               <div className="p-2.5 flex items-center justify-between">
-                <AlertTriangle className="w-6 h-6 text-white/90 stroke-[1.75]" />
+                <ClipboardList className="w-6 h-6 text-white/90 stroke-[1.75]" />
                 <div className="text-right">
                   <span className="block text-[10px] uppercase font-bold text-white/90 leading-none">
                     Pending Task
@@ -676,7 +685,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               className="rounded overflow-hidden shadow-xs flex flex-col justify-between bg-[#f39c12] hover:bg-[#e08e0b] text-white cursor-pointer transition-colors"
             >
               <div className="p-2.5 flex items-center justify-between">
-                <RefreshCw className="w-6 h-6 text-white/90 stroke-[1.75]" />
+                <Wrench className="w-6 h-6 text-white/90 stroke-[1.75]" />
                 <div className="text-right">
                   <span className="block text-[10px] uppercase font-bold text-white/90 leading-none">
                     Processing Task
@@ -929,9 +938,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-white text-xs">
           {/* Block 1: Invoices & Receipts (Green - Column 1) */}
-          <div className="rounded overflow-hidden shadow-sm flex flex-col justify-between bg-[#28a745] text-white">
+          <div className="rounded overflow-hidden shadow-sm flex flex-col justify-between bg-[#2ecc71] text-white">
             <div className="p-3 space-y-1.5">
-              <div className="font-bold text-sm text-white border-b border-green-400/40 pb-1.5 flex items-center justify-between">
+              <div className="font-bold text-sm text-white border-b border-green-300/40 pb-1.5 flex items-center justify-between">
                 <span>Service Invoices</span>
                 <span className="font-extrabold text-base">৳7,395</span>
               </div>
@@ -943,12 +952,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <span>Direct Income:</span>
                 <span className="font-semibold">৳0</span>
               </div>
-              <div className="flex justify-between text-white/95 pt-0.5 border-t border-green-500/30">
+              <div className="flex justify-between text-white/95 pt-0.5 border-t border-green-400/30">
                 <span>Direct Expense:</span>
                 <span className="font-semibold">৳0</span>
               </div>
             </div>
-            <div className="bg-[#218838] py-1 px-3 text-center text-[10.5px] font-medium text-white/95 truncate">
+            <div className="bg-[#27ae60] py-1 px-3 text-center text-[10.5px] font-medium text-white/95 truncate">
               Service Receipts Up-to-date
             </div>
           </div>
