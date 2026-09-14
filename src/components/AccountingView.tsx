@@ -17,11 +17,12 @@ import {
   Search
 } from 'lucide-react';
 import { PaymentReceipt } from '../types';
+import { PageHeader } from './common';
 
 interface AccountingViewProps {
   receipts?: PaymentReceipt[];
   onOpenReceipt?: (receipt: PaymentReceipt) => void;
-  initialTab?: 'daily' | 'cashbook' | 'expenses' | 'pl';
+  initialTab?: 'dashboard' | 'daily' | 'cashbook' | 'expenses' | 'pl';
 }
 
 interface ExpenseRecord {
@@ -38,9 +39,9 @@ interface ExpenseRecord {
 export const AccountingView: React.FC<AccountingViewProps> = ({
   receipts = [],
   onOpenReceipt,
-  initialTab = 'daily'
+  initialTab = 'dashboard'
 }) => {
-  const [activeTab, setActiveTab] = useState<'daily' | 'cashbook' | 'expenses' | 'pl'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'daily' | 'cashbook' | 'expenses' | 'pl'>(initialTab);
   const [dateFilter, setDateFilter] = useState('Today');
 
   React.useEffect(() => {
@@ -141,7 +142,7 @@ export const AccountingView: React.FC<AccountingViewProps> = ({
   const bkashBalance = 32800;
 
   return (
-    <div className="p-4 space-y-4 bg-[#f4f7f9] min-h-screen text-slate-800">
+    <div className="p-4 space-y-4 bg-slate-50 min-h-screen text-slate-800">
       {/* Toast Notification */}
       {toast && (
         <div className="fixed top-16 right-6 bg-slate-900 text-white px-4 py-2 rounded shadow-2xl text-xs z-50 flex items-center gap-2 border border-emerald-500 animate-fade-in">
@@ -150,130 +151,290 @@ export const AccountingView: React.FC<AccountingViewProps> = ({
         </div>
       )}
 
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded shadow-sm border border-slate-200">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-[#162e3d] text-emerald-400 rounded">
-            <Scale className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-slate-800 flex items-center gap-2">
-              Accounting Ledger & Daily Collection Register
-            </h1>
-            <p className="text-xs text-slate-500">
-              Bhurungamari Broadband Network (BBN) Accounts & Cash Book
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowAddExpenseModal(true)}
-            className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded shadow-sm flex items-center gap-1.5 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Expense Voucher</span>
-          </button>
-
-          <div className="flex rounded border border-slate-200 p-0.5 bg-slate-100 text-xs font-medium">
+      {/* Page Header */}
+      <PageHeader
+        title={activeTab === 'dashboard' ? 'Accounting Dashboard' : 'Accounting & Ledger'}
+        subtitle={activeTab === 'dashboard' ? 'Application Accounting Dashboard' : 'Bhurungamari Broadband Network (BBN) Accounts & Cash Book'}
+        icon={Scale}
+        breadcrumbs={[
+          { label: 'Accounting' },
+          { label: activeTab === 'dashboard' ? 'Dashboard' : activeTab.toUpperCase() }
+        ]}
+        actions={
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setActiveTab('daily')}
-              className={`px-3 py-1 rounded transition-colors ${
-                activeTab === 'daily' ? 'bg-white shadow text-cyan-700 font-bold' : 'text-slate-600'
-              }`}
+              onClick={() => setShowAddExpenseModal(true)}
+              className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded shadow-xs flex items-center gap-1.5 transition-colors"
             >
-              Daily Collections
+              <Plus className="w-3.5 h-3.5" />
+              <span>New Expense Voucher</span>
             </button>
-            <button
-              onClick={() => setActiveTab('cashbook')}
-              className={`px-3 py-1 rounded transition-colors ${
-                activeTab === 'cashbook' ? 'bg-white shadow text-cyan-700 font-bold' : 'text-slate-600'
-              }`}
-            >
-              Cash & Bank Book
-            </button>
-            <button
-              onClick={() => setActiveTab('expenses')}
-              className={`px-3 py-1 rounded transition-colors ${
-                activeTab === 'expenses' ? 'bg-white shadow text-cyan-700 font-bold' : 'text-slate-600'
-              }`}
-            >
-              Expenses
-            </button>
-            <button
-              onClick={() => setActiveTab('pl')}
-              className={`px-3 py-1 rounded transition-colors ${
-                activeTab === 'pl' ? 'bg-white shadow text-cyan-700 font-bold' : 'text-slate-600'
-              }`}
-            >
-              P&L Overview
-            </button>
-          </div>
-        </div>
-      </div>
 
-      {/* Accounting Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-white p-3.5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Gross Billing Collected</span>
-            <div className="text-xl font-black text-emerald-700 font-mono mt-0.5">
-              ৳ {totalReceived.toLocaleString()}
+            <div className="flex rounded-lg border border-slate-200 p-0.5 bg-slate-100 text-xs font-semibold">
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`px-3 py-1 rounded-md transition-all ${
+                  activeTab === 'dashboard' ? 'bg-white shadow-xs text-cyan-700 font-bold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => setActiveTab('daily')}
+                className={`px-3 py-1 rounded-md transition-all ${
+                  activeTab === 'daily' ? 'bg-white shadow-xs text-cyan-700 font-bold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Daily Collections
+              </button>
+              <button
+                onClick={() => setActiveTab('cashbook')}
+                className={`px-3 py-1 rounded-md transition-all ${
+                  activeTab === 'cashbook' ? 'bg-white shadow-xs text-cyan-700 font-bold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Cash & Bank Book
+              </button>
+              <button
+                onClick={() => setActiveTab('expenses')}
+                className={`px-3 py-1 rounded-md transition-all ${
+                  activeTab === 'expenses' ? 'bg-white shadow-xs text-cyan-700 font-bold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Expenses
+              </button>
+              <button
+                onClick={() => setActiveTab('pl')}
+                className={`px-3 py-1 rounded-md transition-all ${
+                  activeTab === 'pl' ? 'bg-white shadow-xs text-cyan-700 font-bold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                P&L Overview
+              </button>
             </div>
-            <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
-              <TrendingUp className="w-3 h-3" /> Retail + POP Subscriptions
-            </span>
           </div>
-          <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
-            <DollarSign className="w-5 h-5" />
-          </div>
-        </div>
+        }
+      />
 
-        <div className="bg-white p-3.5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Operating Expenses</span>
-            <div className="text-xl font-black text-rose-700 font-mono mt-0.5">
-              ৳ {totalExpenses.toLocaleString()}
+      {/* Tab 0: Accounting Dashboard (Image 1 / AccountingDashboard/Index) */}
+      {activeTab === 'dashboard' && (
+        <div className="space-y-4 animate-fade-in">
+          {/* Top 6 Summary Metric Cards matching exact numbers from real portal */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {/* Total Income */}
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500">Total Income</span>
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm">
+                  ৳
+                </div>
+              </div>
+              <div className="text-lg font-black text-slate-900 mt-1 font-mono">
+                ৳205,300.00
+              </div>
             </div>
-            <span className="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
-              <TrendingDown className="w-3 h-3 text-rose-500" /> Bandwidth, fiber & payroll
-            </span>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center text-rose-600">
-            <TrendingDown className="w-5 h-5" />
-          </div>
-        </div>
 
-        <div className="bg-white p-3.5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Net Operating Profit</span>
-            <div className="text-xl font-black text-cyan-700 font-mono mt-0.5">
-              ৳ {netProfit.toLocaleString()}
+            {/* Total Expense */}
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500">Total Expense</span>
+                <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-sm">
+                  ৳
+                </div>
+              </div>
+              <div className="text-lg font-black text-slate-900 mt-1 font-mono">
+                ৳0.00
+              </div>
             </div>
-            <span className="text-[10px] text-cyan-600 font-semibold flex items-center gap-1 mt-0.5">
-              Profit Margin: {((netProfit / totalReceived) * 100).toFixed(1)}%
-            </span>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-600">
-            <Scale className="w-5 h-5" />
-          </div>
-        </div>
 
-        <div className="bg-white p-3.5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cash in Drawer (Petty)</span>
-            <div className="text-xl font-black text-slate-800 font-mono mt-0.5">
-              ৳ {cashBalance.toLocaleString()}
+            {/* Total Profit */}
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500">Total Profit</span>
+                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
+                  ৳
+                </div>
+              </div>
+              <div className="text-lg font-black text-slate-900 mt-1 font-mono">
+                ৳205,300.00
+              </div>
             </div>
-            <span className="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
-              Bank: ৳ {bankBalance.toLocaleString()}
-            </span>
+
+            {/* Expected Payments from Customers */}
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500 truncate" title="Expected Payments from Customers">Expected Customers</span>
+                <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-sm">
+                  ৳
+                </div>
+              </div>
+              <div className="text-lg font-black text-slate-900 mt-1 font-mono">
+                ৳4,291,200.00
+              </div>
+            </div>
+
+            {/* Expected payments to vendors */}
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500 truncate" title="Expected payments to vendors">Expected Vendors</span>
+                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-sm">
+                  ৳
+                </div>
+              </div>
+              <div className="text-lg font-black text-slate-900 mt-1 font-mono">
+                ৳0.00
+              </div>
+            </div>
+
+            {/* Total Upcoming */}
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-500">Total Upcoming</span>
+                <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center font-bold text-sm">
+                  ৳
+                </div>
+              </div>
+              <div className="text-lg font-black text-slate-900 mt-1 font-mono">
+                ৳4,291,200.00
+              </div>
+            </div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
-            <Building className="w-5 h-5" />
+
+          {/* Account Balances Row matching Image 1 */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-600">
+              Account Balances
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <span className="text-xs font-bold text-slate-500">Other</span>
+                <div className="text-base font-black text-slate-800 font-mono mt-0.5">৳1,600.00</div>
+              </div>
+              <div className="p-3 bg-pink-50/60 rounded-lg border border-pink-200">
+                <span className="text-xs font-bold text-pink-700">Rocket</span>
+                <div className="text-base font-black text-slate-800 font-mono mt-0.5">৳500.00</div>
+              </div>
+              <div className="p-3 bg-blue-50/60 rounded-lg border border-blue-200">
+                <span className="text-xs font-bold text-blue-700">Bank</span>
+                <div className="text-base font-black text-slate-800 font-mono mt-0.5">৳6,450.00</div>
+              </div>
+              <div className="p-3 bg-pink-50 rounded-lg border border-pink-300">
+                <span className="text-xs font-bold text-pink-700">bKash</span>
+                <div className="text-base font-black text-slate-900 font-mono mt-0.5">৳87,999.00</div>
+              </div>
+              <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-300">
+                <span className="text-xs font-bold text-emerald-800">Cash</span>
+                <div className="text-base font-black text-emerald-900 font-mono mt-0.5">৳7,951,350.00</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Categories Grid: Income by Category & Expense by Category */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Income by Category */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Income by Category
+                </h3>
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  Net: ৳205,300.00
+                </span>
+              </div>
+              <div className="space-y-2 text-xs">
+                <div className="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-100">
+                  <span className="font-semibold text-slate-700">Customer Monthly Bill</span>
+                  <span className="font-bold text-slate-900 font-mono">৳205,800.00</span>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-slate-50 border border-slate-100">
+                  <span className="font-semibold text-slate-700">Customer Monthly Bill Discount</span>
+                  <span className="font-bold text-rose-600 font-mono">-৳500.00</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Expense by Category */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Expense by Category
+                </h3>
+                <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                  Net: ৳0.00
+                </span>
+              </div>
+              <div className="py-8 text-center text-slate-400 text-xs">
+                No expense data recorded in this period.
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Accounting Stat Cards for standard ledger views */}
+      {activeTab !== 'dashboard' && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Gross Billing Collected</span>
+              <div className="text-xl font-black text-emerald-700 font-mono mt-0.5">
+                ৳ {totalReceived.toLocaleString()}
+              </div>
+              <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
+                <TrendingUp className="w-3 h-3" /> Retail + POP Subscriptions
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+              <DollarSign className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Operating Expenses</span>
+              <div className="text-xl font-black text-rose-700 font-mono mt-0.5">
+                ৳ {totalExpenses.toLocaleString()}
+              </div>
+              <span className="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                <TrendingDown className="w-3 h-3 text-rose-500" /> Bandwidth, fiber & payroll
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center text-rose-600">
+              <TrendingDown className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Net Operating Profit</span>
+              <div className="text-xl font-black text-cyan-700 font-mono mt-0.5">
+                ৳ {netProfit.toLocaleString()}
+              </div>
+              <span className="text-[10px] text-cyan-600 font-semibold flex items-center gap-1 mt-0.5">
+                Profit Margin: {((netProfit / totalReceived) * 100).toFixed(1)}%
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-600">
+              <Scale className="w-5 h-5" />
+            </div>
+          </div>
+
+          <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Cash in Drawer (Petty)</span>
+              <div className="text-xl font-black text-slate-800 font-mono mt-0.5">
+                ৳ {cashBalance.toLocaleString()}
+              </div>
+              <span className="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                Bank: ৳ {bankBalance.toLocaleString()}
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+              <Building className="w-5 h-5" />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tab 1: Daily Collections Register */}
       {activeTab === 'daily' && (

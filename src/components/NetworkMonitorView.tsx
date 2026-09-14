@@ -4,21 +4,19 @@ import {
   ArrowDown,
   ArrowUp,
   Cpu,
-  HardDrive,
   RefreshCw,
   Server,
   Zap,
   Radio,
-  Sliders,
   CheckCircle2,
   AlertTriangle,
-  Flame,
   Search,
   PowerOff,
-  Filter,
-  Layers
+  Layers,
+  Network
 } from 'lucide-react';
 import { Client } from '../types';
+import { PageHeader, StatusBadge, EmptyState, Toast, MetricCard } from './common';
 
 interface NetworkMonitorViewProps {
   clients?: Client[];
@@ -45,9 +43,8 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
   onDisconnectSession,
   onSelectClient
 }) => {
-  const [activeTab, setActiveTab] = useState<'realtime' | 'olt' | 'topology' | 'queues'>('realtime');
+  const [activeTab, setActiveTab] = useState<'realtime' | 'olt' | 'topology'>('realtime');
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [selectedInterface, setSelectedInterface] = useState<'all' | 'ether1-wan' | 'bdix-peering' | 'pppoe-pool'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState<string | null>(null);
 
@@ -55,20 +52,6 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
   const [downloadRate, setDownloadRate] = useState(842.6);
   const [uploadRate, setUploadRate] = useState(314.2);
   const [bdixRate, setBdixRate] = useState(1240.8);
-  const [cacheHitRate, setCacheHitRate] = useState(68.5);
-
-  // History buffer for visual SVG graph
-  const [history, setHistory] = useState<Array<{ time: string; rx: number; tx: number }>>([
-    { time: '12:00', rx: 790, tx: 290 },
-    { time: '12:05', rx: 810, tx: 300 },
-    { time: '12:10', rx: 850, tx: 320 },
-    { time: '12:15', rx: 830, tx: 310 },
-    { time: '12:20', rx: 890, tx: 340 },
-    { time: '12:25', rx: 860, tx: 325 },
-    { time: '12:30', rx: 840, tx: 315 },
-    { time: '12:35', rx: 875, tx: 330 },
-    { time: '12:40', rx: 842, tx: 314 }
-  ]);
 
   const [activeSessions, setActiveSessions] = useState<ActiveSession[]>([
     {
@@ -107,7 +90,7 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
       txMbps: 7.1,
       interfaceName: '<pppoe-faruk77>',
       ponPort: 'PON 1/3',
-      opticalPowerDbm: -27.8, // Low optical power warning
+      opticalPowerDbm: -27.8,
       status: 'warning'
     },
     {
@@ -167,7 +150,7 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
   const handleKickSession = (username: string) => {
     setActiveSessions((prev) => prev.filter((s) => s.username !== username));
     if (onDisconnectSession) onDisconnectSession(username);
-    showToast(`PPPoE session <pppoe-${username}> cleared and terminated from Mikrotik.`);
+    showToast(`PPPoE session <pppoe-${username}> cleared and terminated from MikroTik.`);
   };
 
   const filteredSessions = activeSessions.filter(
@@ -179,144 +162,110 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
   );
 
   return (
-    <div className="p-4 space-y-4 bg-[#f4f7f9] min-h-screen text-slate-800">
+    <div className="p-4 sm:p-5 space-y-4 bg-slate-50 min-h-[calc(100vh-3.5rem)] text-slate-800">
       {/* Toast */}
-      {toast && (
-        <div className="fixed top-16 right-6 bg-slate-900 text-white px-4 py-2 rounded shadow-2xl text-xs z-50 flex items-center gap-2 border border-cyan-500 animate-fade-in">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{toast}</span>
-        </div>
-      )}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
-      {/* Top Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded shadow-sm border border-slate-200">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-[#162e3d] text-cyan-400 rounded">
-            <Activity className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-slate-800 flex items-center gap-2">
-              Real-Time Bandwidth & Network Diagnostics
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 animate-pulse">
-                LIVE SNMP 3s
-              </span>
-            </h1>
-            <p className="text-xs text-slate-500">
-              Mikrotik BBN-CORE (CCR1036-8G-2S+) & Huawei MA5608T EPON OLT Monitor
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`px-3 py-1.5 rounded text-xs font-semibold flex items-center gap-1.5 transition-colors border ${
-              autoRefresh
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                : 'bg-slate-100 text-slate-600 border-slate-300'
-            }`}
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${autoRefresh ? 'animate-spin' : ''}`} />
-            <span>{autoRefresh ? 'Auto-Polling Active' : 'Polling Paused'}</span>
-          </button>
-
-          <div className="flex rounded border border-slate-200 p-0.5 bg-slate-100 text-xs font-medium">
+      {/* Unified Page Header */}
+      <PageHeader
+        title="Real-Time Network Diagnostics & MRTG"
+        subtitle="MikroTik BBN-CORE (CCR1036-8G-2S+) & Huawei MA5608T EPON OLT Telemetry"
+        icon={Activity}
+        breadcrumbs={[
+          { label: 'Home', onClick: () => {} },
+          { label: 'Network', onClick: () => {} },
+          { label: 'Live Diagnostics' }
+        ]}
+        actions={
+          <>
             <button
-              onClick={() => setActiveTab('realtime')}
-              className={`px-3 py-1 rounded transition-colors ${
-                activeTab === 'realtime' ? 'bg-white shadow text-cyan-700 font-bold' : 'text-slate-600 hover:text-slate-900'
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border shadow-xs ${
+                autoRefresh
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                  : 'bg-white text-slate-700 border-slate-300'
               }`}
             >
-              Traffic MRTG
+              <RefreshCw className={`w-3.5 h-3.5 ${autoRefresh ? 'animate-spin' : ''}`} />
+              <span>{autoRefresh ? 'Auto-Polling Active' : 'Polling Paused'}</span>
             </button>
-            <button
-              onClick={() => setActiveTab('olt')}
-              className={`px-3 py-1 rounded transition-colors ${
-                activeTab === 'olt' ? 'bg-white shadow text-cyan-700 font-bold' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              OLT PON Optical
-            </button>
-            <button
-              onClick={() => setActiveTab('topology')}
-              className={`px-3 py-1 rounded transition-colors ${
-                activeTab === 'topology' ? 'bg-white shadow text-cyan-700 font-bold' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              POP Fiber Topology
-            </button>
-          </div>
-        </div>
-      </div>
 
-      {/* Top 4 Real-time Metric Cards */}
+            <div className="flex rounded-lg border border-slate-200 p-0.5 bg-slate-100 text-xs font-medium">
+              <button
+                onClick={() => setActiveTab('realtime')}
+                className={`px-3 py-1 rounded-md transition-colors ${
+                  activeTab === 'realtime'
+                    ? 'bg-white shadow-xs text-cyan-800 font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Traffic MRTG
+              </button>
+              <button
+                onClick={() => setActiveTab('olt')}
+                className={`px-3 py-1 rounded-md transition-colors ${
+                  activeTab === 'olt'
+                    ? 'bg-white shadow-xs text-cyan-800 font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                OLT PON Optical
+              </button>
+              <button
+                onClick={() => setActiveTab('topology')}
+                className={`px-3 py-1 rounded-md transition-colors ${
+                  activeTab === 'topology'
+                    ? 'bg-white shadow-xs text-cyan-800 font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Fiber Topology
+              </button>
+            </div>
+          </>
+        }
+      />
+
+      {/* Key Real-Time Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-white p-3.5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Download (WAN Rx)</span>
-            <div className="text-xl font-black text-cyan-700 flex items-baseline gap-1 mt-0.5 font-mono">
-              {downloadRate} <span className="text-xs font-semibold text-slate-500">Mbps</span>
-            </div>
-            <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
-              <ArrowDown className="w-3 h-3" /> Peak 980 Mbps (Cap 1 Gbps)
-            </span>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-600">
-            <ArrowDown className="w-5 h-5" />
-          </div>
-        </div>
+        <MetricCard
+          label="Download (WAN Rx)"
+          value={`${downloadRate} Mbps`}
+          subValue="Peak 980 Mbps (Cap 1 Gbps)"
+          icon={ArrowDown}
+          color="cyan"
+        />
 
-        <div className="bg-white p-3.5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Upload (WAN Tx)</span>
-            <div className="text-xl font-black text-indigo-700 flex items-baseline gap-1 mt-0.5 font-mono">
-              {uploadRate} <span className="text-xs font-semibold text-slate-500">Mbps</span>
-            </div>
-            <span className="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
-              <ArrowUp className="w-3 h-3 text-indigo-500" /> Symmetrical upstream
-            </span>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
-            <ArrowUp className="w-5 h-5" />
-          </div>
-        </div>
+        <MetricCard
+          label="Upload (WAN Tx)"
+          value={`${uploadRate} Mbps`}
+          subValue="Symmetrical upstream"
+          icon={ArrowUp}
+          color="indigo"
+        />
 
-        <div className="bg-white p-3.5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">BDIX / Local Peering</span>
-            <div className="text-xl font-black text-emerald-700 flex items-baseline gap-1 mt-0.5 font-mono">
-              {bdixRate} <span className="text-xs font-semibold text-slate-500">Mbps</span>
-            </div>
-            <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
-              <Zap className="w-3 h-3" /> YouTube GGC + BDIX Direct
-            </span>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
-            <Zap className="w-5 h-5" />
-          </div>
-        </div>
+        <MetricCard
+          label="BDIX / Local Peering"
+          value={`${bdixRate} Mbps`}
+          subValue="YouTube GGC + BDIX Direct"
+          icon={Zap}
+          color="emerald"
+        />
 
-        <div className="bg-white p-3.5 rounded border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Router CPU & Temp</span>
-            <div className="text-xl font-black text-slate-800 flex items-baseline gap-1 mt-0.5 font-mono">
-              18% <span className="text-xs font-normal text-slate-500">/ 41°C</span>
-            </div>
-            <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
-              <CheckCircle2 className="w-3 h-3" /> 36 Cores CCR Normal
-            </span>
-          </div>
-          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
-            <Cpu className="w-5 h-5" />
-          </div>
-        </div>
+        <MetricCard
+          label="Router CPU & Temp"
+          value="18% / 41°C"
+          subValue="36 Cores CCR Normal"
+          icon={Cpu}
+          color="slate"
+        />
       </div>
 
       {/* Main Content by Tab */}
       {activeTab === 'realtime' && (
         <div className="space-y-4">
           {/* Traffic Graph Card */}
-          <div className="bg-white p-4 rounded border border-slate-200 shadow-sm space-y-3">
+          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
               <div className="flex items-center space-x-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-ping"></span>
@@ -337,7 +286,7 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
             </div>
 
             {/* Custom SVG MRTG Area Chart */}
-            <div className="h-48 w-full relative bg-[#0b1924] rounded-md p-3 overflow-hidden">
+            <div className="h-48 w-full relative bg-[#0b1924] rounded-lg p-3 overflow-hidden">
               <svg className="w-full h-full" viewBox="0 0 800 160" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="cyanGrad" x1="0" y1="0" x2="0" y2="1">
@@ -385,18 +334,18 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
                 Max In: 980 Mbps | Current In: {downloadRate} Mbps | Average: 840 Mbps
               </div>
               <div className="absolute bottom-2 right-4 text-[10px] font-mono text-cyan-400 bg-black/40 px-2 py-0.5 rounded">
-                Mikrotik SNMP v2c / 3000ms Poll
+                MikroTik SNMP v2c / 3000ms Poll
               </div>
             </div>
           </div>
 
           {/* Active PPPoE Sessions Table */}
-          <div className="bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center space-x-2">
                 <Radio className="w-4 h-4 text-cyan-600" />
                 <span className="font-bold text-xs text-slate-800 uppercase tracking-wider">
-                  Active PPPoE Sessions & Optical Signal ({activeSessions.length} Online)
+                  Active PPPoE Sessions &amp; Optical Signal ({activeSessions.length} Online)
                 </span>
               </div>
 
@@ -407,86 +356,93 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
                     placeholder="Search User, IP, MAC, PON..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-7 pr-2.5 py-1 text-xs rounded border border-slate-300 w-52 focus:outline-none focus:border-cyan-500"
+                    className="pl-7 pr-2.5 py-1 text-xs rounded-lg border border-slate-300 w-52 focus:outline-none focus:border-cyan-500 bg-white"
                   />
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2" />
                 </div>
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
-                    <th className="p-2.5">User / Interface</th>
-                    <th className="p-2.5">Allocated IP</th>
-                    <th className="p-2.5">MAC Address</th>
-                    <th className="p-2.5">PON Port</th>
-                    <th className="p-2.5">Optical Power</th>
-                    <th className="p-2.5">Rx Rate</th>
-                    <th className="p-2.5">Tx Rate</th>
-                    <th className="p-2.5">Uptime</th>
-                    <th className="p-2.5 text-center">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredSessions.map((session) => (
-                    <tr key={session.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="p-2.5 font-bold font-mono text-[#162e3d]">
-                        <div className="flex items-center gap-1.5">
-                          <span
-                            className={`w-2 h-2 rounded-full ${
-                              session.status === 'warning' ? 'bg-amber-500' : 'bg-emerald-500'
-                            }`}
-                          ></span>
-                          <span>{session.username}</span>
-                        </div>
-                        <span className="text-[10px] text-slate-400 font-normal">{session.interfaceName}</span>
-                      </td>
-                      <td className="p-2.5 font-mono text-slate-700">{session.ipAddress}</td>
-                      <td className="p-2.5 font-mono text-slate-500 text-[11px]">{session.macAddress}</td>
-                      <td className="p-2.5 font-semibold text-slate-700">
-                        <span className="px-1.5 py-0.5 bg-slate-100 rounded text-[11px] border border-slate-200">
-                          {session.ponPort}
-                        </span>
-                      </td>
-                      <td className="p-2.5 font-mono font-bold">
-                        <span
-                          className={`px-1.5 py-0.5 rounded text-[11px] ${
-                            session.opticalPowerDbm < -26
-                              ? 'bg-rose-100 text-rose-700'
-                              : 'bg-emerald-100 text-emerald-800'
-                          }`}
-                        >
-                          {session.opticalPowerDbm} dBm
-                        </span>
-                      </td>
-                      <td className="p-2.5 font-mono font-semibold text-cyan-700">
-                        <span className="flex items-center gap-1">
-                          <ArrowDown className="w-3 h-3 text-cyan-500" /> {session.rxMbps} Mbps
-                        </span>
-                      </td>
-                      <td className="p-2.5 font-mono font-semibold text-indigo-700">
-                        <span className="flex items-center gap-1">
-                          <ArrowUp className="w-3 h-3 text-indigo-500" /> {session.txMbps} Mbps
-                        </span>
-                      </td>
-                      <td className="p-2.5 text-slate-500">{session.uptime}</td>
-                      <td className="p-2.5 text-center">
-                        <button
-                          onClick={() => handleKickSession(session.username)}
-                          className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded text-[11px] font-semibold border border-rose-200 transition-colors flex items-center gap-1 mx-auto"
-                          title="Terminate active Mikrotik session to force reconnect"
-                        >
-                          <PowerOff className="w-3 h-3" />
-                          <span>Kick</span>
-                        </button>
-                      </td>
+            {filteredSessions.length === 0 ? (
+              <EmptyState
+                title="No Active Sessions Found"
+                description="No active PPPoE sessions match your search query."
+              />
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-[#162e3d] text-white font-semibold uppercase text-[10px]">
+                      <th className="p-3">User / Interface</th>
+                      <th className="p-3">Allocated IP</th>
+                      <th className="p-3">MAC Address</th>
+                      <th className="p-3">PON Port</th>
+                      <th className="p-3">Optical Power</th>
+                      <th className="p-3">Rx Rate</th>
+                      <th className="p-3">Tx Rate</th>
+                      <th className="p-3">Uptime</th>
+                      <th className="p-3 text-center">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredSessions.map((session) => (
+                      <tr key={session.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="p-3 font-bold font-mono text-[#162e3d]">
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                session.status === 'warning' ? 'bg-amber-500' : 'bg-emerald-500'
+                              }`}
+                            ></span>
+                            <span>{session.username}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-400 font-normal">{session.interfaceName}</span>
+                        </td>
+                        <td className="p-3 font-mono text-slate-700">{session.ipAddress}</td>
+                        <td className="p-3 font-mono text-slate-500 text-[11px]">{session.macAddress}</td>
+                        <td className="p-3 font-semibold text-slate-700">
+                          <span className="px-2 py-0.5 bg-slate-100 rounded-md text-[11px] border border-slate-200">
+                            {session.ponPort}
+                          </span>
+                        </td>
+                        <td className="p-3 font-mono font-bold">
+                          <span
+                            className={`px-2 py-0.5 rounded-md text-[11px] ${
+                              session.opticalPowerDbm < -26
+                                ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            }`}
+                          >
+                            {session.opticalPowerDbm} dBm
+                          </span>
+                        </td>
+                        <td className="p-3 font-mono font-semibold text-cyan-700">
+                          <span className="flex items-center gap-1">
+                            <ArrowDown className="w-3 h-3 text-cyan-500" /> {session.rxMbps} Mbps
+                          </span>
+                        </td>
+                        <td className="p-3 font-mono font-semibold text-indigo-700">
+                          <span className="flex items-center gap-1">
+                            <ArrowUp className="w-3 h-3 text-indigo-500" /> {session.txMbps} Mbps
+                          </span>
+                        </td>
+                        <td className="p-3 text-slate-500">{session.uptime}</td>
+                        <td className="p-3 text-center">
+                          <button
+                            onClick={() => handleKickSession(session.username)}
+                            className="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-[11px] font-semibold border border-rose-200 transition-colors inline-flex items-center gap-1"
+                            title="Terminate active MikroTik session to force reconnect"
+                          >
+                            <PowerOff className="w-3 h-3" />
+                            <span>Kick</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -495,50 +451,50 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
       {activeTab === 'olt' && (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-              <span className="text-xs text-slate-500">OLT Model</span>
-              <p className="text-sm font-bold text-slate-800">Huawei SmartAX MA5608T</p>
-              <span className="text-[10px] text-emerald-600 font-medium">Firmware V800R018C10</span>
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <span className="text-xs text-slate-500 font-medium">OLT Model</span>
+              <p className="text-sm font-bold text-slate-800 mt-0.5">Huawei SmartAX MA5608T</p>
+              <span className="text-[10px] text-emerald-600 font-semibold">Firmware V800R018C10</span>
             </div>
-            <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-              <span className="text-xs text-slate-500">Total PON Ports</span>
-              <p className="text-sm font-bold text-slate-800">8 EPON / GPON Ports</p>
-              <span className="text-[10px] text-cyan-600 font-medium">8 SFP Modules Active</span>
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <span className="text-xs text-slate-500 font-medium">Total PON Ports</span>
+              <p className="text-sm font-bold text-slate-800 mt-0.5">8 EPON / GPON Ports</p>
+              <span className="text-[10px] text-cyan-600 font-semibold">8 SFP Modules Active</span>
             </div>
-            <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-              <span className="text-xs text-slate-500">Total Online ONUs</span>
-              <p className="text-sm font-bold text-emerald-700 font-mono">582 / 600 Online</p>
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <span className="text-xs text-slate-500 font-medium">Total Online ONUs</span>
+              <p className="text-sm font-bold text-emerald-700 font-mono mt-0.5">582 / 600 Online</p>
               <span className="text-[10px] text-slate-400 font-medium">18 Offline / Power Off</span>
             </div>
-            <div className="bg-white p-3 rounded border border-slate-200 shadow-sm">
-              <span className="text-xs text-slate-500">Laser Class & Power</span>
-              <p className="text-sm font-bold text-slate-800 font-mono">+4.2 dBm Tx Class C++</p>
-              <span className="text-[10px] text-emerald-600 font-medium">Wavelength 1490nm</span>
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+              <span className="text-xs text-slate-500 font-medium">Laser Class &amp; Power</span>
+              <p className="text-sm font-bold text-slate-800 font-mono mt-0.5">+4.2 dBm Tx Class C++</p>
+              <span className="text-[10px] text-emerald-600 font-semibold">Wavelength 1490nm</span>
             </div>
           </div>
 
-          <div className="bg-white rounded border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="p-3 bg-slate-50 border-b border-slate-200 font-bold text-xs text-slate-800 flex items-center justify-between">
               <span>8-Port EPON OLT Slot 0/1 Interface Health</span>
               <button
                 onClick={() => showToast('OLT optical diagnostics refreshed successfully!')}
-                className="px-2.5 py-1 bg-white border border-slate-300 text-slate-700 text-xs rounded hover:bg-slate-50"
+                className="px-2.5 py-1 bg-white border border-slate-300 text-slate-700 text-xs rounded-lg hover:bg-slate-50 font-medium shadow-xs"
               >
                 Refresh Optical Levels
               </button>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-100 text-slate-600 border-b border-slate-200">
-                    <th className="p-2.5">Port</th>
-                    <th className="p-2.5">Admin State</th>
-                    <th className="p-2.5">Zone Coverage</th>
-                    <th className="p-2.5">ONUs (Active/Total)</th>
-                    <th className="p-2.5">Avg Rx Power</th>
-                    <th className="p-2.5">Current Traffic</th>
-                    <th className="p-2.5">Temperature</th>
-                    <th className="p-2.5">Status</th>
+                  <tr className="bg-[#162e3d] text-white border-b border-slate-200 uppercase text-[10px]">
+                    <th className="p-3">Port</th>
+                    <th className="p-3">Admin State</th>
+                    <th className="p-3">Zone Coverage</th>
+                    <th className="p-3">ONUs (Active/Total)</th>
+                    <th className="p-3">Avg Rx Power</th>
+                    <th className="p-3">Current Traffic</th>
+                    <th className="p-3">Temperature</th>
+                    <th className="p-3">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -552,28 +508,28 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
                     { port: 'PON 0/1/6', zone: 'South Jamtola Village', on: 48, total: 60, rx: '-22.1 dBm', traffic: '64 Mbps', temp: '39°C', status: 'Optimal' },
                     { port: 'PON 0/1/7', zone: 'Spare / Expansion Core', on: 0, total: 0, rx: '0.0 dBm', traffic: '0 Mbps', temp: '36°C', status: 'Standby' }
                   ].map((p, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50">
-                      <td className="p-2.5 font-bold font-mono text-[#162e3d]">{p.port}</td>
-                      <td className="p-2.5">
-                        <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                    <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-3 font-bold font-mono text-[#162e3d]">{p.port}</td>
+                      <td className="p-3">
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
                           UP / Enabled
                         </span>
                       </td>
-                      <td className="p-2.5 font-medium text-slate-800">{p.zone}</td>
-                      <td className="p-2.5 font-mono font-semibold text-slate-700">
+                      <td className="p-3 font-medium text-slate-800">{p.zone}</td>
+                      <td className="p-3 font-mono font-semibold text-slate-700">
                         {p.on} / {p.total}
                       </td>
-                      <td className="p-2.5 font-mono">{p.rx}</td>
-                      <td className="p-2.5 font-mono font-bold text-cyan-700">{p.traffic}</td>
-                      <td className="p-2.5 font-mono text-slate-500">{p.temp}</td>
-                      <td className="p-2.5">
+                      <td className="p-3 font-mono text-slate-700">{p.rx}</td>
+                      <td className="p-3 font-mono font-bold text-cyan-700">{p.traffic}</td>
+                      <td className="p-3 font-mono text-slate-500">{p.temp}</td>
+                      <td className="p-3">
                         <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                             p.status === 'Optimal'
-                              ? 'bg-emerald-100 text-emerald-800'
+                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                               : p.status === 'Warning'
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-slate-100 text-slate-600'
+                              ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                              : 'bg-slate-100 text-slate-600 border border-slate-200'
                           }`}
                         >
                           {p.status}
@@ -590,21 +546,21 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
 
       {/* Topology Diagram Tab */}
       {activeTab === 'topology' && (
-        <div className="bg-white p-5 rounded border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div>
               <h2 className="text-sm font-bold text-slate-800">BBN Optical Distribution Network (ODN) Map</h2>
-              <p className="text-xs text-slate-500">Core Network Backbone & Splice Box Hierarchy</p>
+              <p className="text-xs text-slate-500">Core Network Backbone &amp; Splice Box Hierarchy</p>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-1 bg-cyan-50 text-cyan-700 rounded border border-cyan-200">
+            <span className="text-xs font-semibold px-2.5 py-1 bg-cyan-50 text-cyan-700 rounded-lg border border-cyan-200">
               Active Network Topology
             </span>
           </div>
 
-          <div className="p-6 bg-slate-900 rounded-lg text-white font-mono text-xs space-y-6 overflow-x-auto">
+          <div className="p-6 bg-slate-900 rounded-xl text-white font-mono text-xs space-y-6 overflow-x-auto">
             {/* Level 1: Core Router */}
             <div className="flex items-center justify-center">
-              <div className="p-3 bg-cyan-900/80 border-2 border-cyan-400 rounded-lg text-center w-72 shadow-lg">
+              <div className="p-3.5 bg-cyan-900/80 border-2 border-cyan-400 rounded-xl text-center w-72 shadow-lg">
                 <Server className="w-5 h-5 mx-auto mb-1 text-cyan-300" />
                 <div className="font-bold text-cyan-200">BBN-CORE (CCR1036)</div>
                 <div className="text-[10px] text-slate-300">IP: 157.10.238.100 | SFP+ 10G Uplink</div>
@@ -615,7 +571,7 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
 
             {/* Level 2: OLT */}
             <div className="flex items-center justify-center">
-              <div className="p-3 bg-emerald-900/80 border-2 border-emerald-400 rounded-lg text-center w-72 shadow-lg">
+              <div className="p-3.5 bg-emerald-900/80 border-2 border-emerald-400 rounded-xl text-center w-72 shadow-lg">
                 <Layers className="w-5 h-5 mx-auto mb-1 text-emerald-300" />
                 <div className="font-bold text-emerald-200">MA5608T EPON OLT</div>
                 <div className="text-[10px] text-slate-300">8 PON Ports | 600 Active Optical ONUs</div>
@@ -626,19 +582,19 @@ export const NetworkMonitorView: React.FC<NetworkMonitorViewProps> = ({
 
             {/* Level 3: Optical Splitter Nodes */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-3 bg-slate-800 border border-slate-700 rounded text-center">
+              <div className="p-3.5 bg-slate-800 border border-slate-700 rounded-xl text-center">
                 <div className="font-bold text-amber-400">Jamtola Node (Box-01)</div>
                 <div className="text-[10px] text-slate-400 mt-1">1:8 PLC Splitter</div>
                 <div className="text-[10px] text-emerald-400 mt-0.5 font-bold">Signal: -19 dBm (64 Users)</div>
               </div>
 
-              <div className="p-3 bg-slate-800 border border-slate-700 rounded text-center">
+              <div className="p-3.5 bg-slate-800 border border-slate-700 rounded-xl text-center">
                 <div className="font-bold text-amber-400">Bot Tola Node (Box-02)</div>
                 <div className="text-[10px] text-slate-400 mt-1">1:8 PLC Splitter</div>
                 <div className="text-[10px] text-emerald-400 mt-0.5 font-bold">Signal: -21 dBm (58 Users)</div>
               </div>
 
-              <div className="p-3 bg-slate-800 border border-slate-700 rounded text-center">
+              <div className="p-3.5 bg-slate-800 border border-slate-700 rounded-xl text-center">
                 <div className="font-bold text-amber-400">Joymonirhat Sub-POP</div>
                 <div className="text-[10px] text-slate-400 mt-1">24-Core Armored Trunk</div>
                 <div className="text-[10px] text-emerald-400 mt-0.5 font-bold">Signal: -23 dBm (115 Users)</div>

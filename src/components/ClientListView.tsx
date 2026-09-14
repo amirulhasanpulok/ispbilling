@@ -7,17 +7,15 @@ import {
   Eye,
   EyeOff,
   Search,
-  Filter,
   CheckCircle2,
-  XCircle,
-  MoreVertical,
-  Edit,
   DollarSign,
   UserCheck,
-  Send,
-  ExternalLink
+  ExternalLink,
+  Users,
+  AlertCircle
 } from 'lucide-react';
 import { Client } from '../types';
+import { PageHeader, StatusBadge, EmptyState, Toast } from './common';
 
 interface ClientListViewProps {
   clients?: Client[];
@@ -108,112 +106,110 @@ export const ClientListView: React.FC<ClientListViewProps> = ({
   });
 
   return (
-    <div className="p-4 space-y-4 bg-[#f4f7f9] min-h-screen text-slate-800">
+    <div className="p-4 sm:p-5 space-y-4 bg-slate-50 min-h-[calc(100vh-3.5rem)] text-slate-800">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-16 right-6 bg-slate-900 text-white px-4 py-2 rounded shadow-xl text-xs z-50 flex items-center gap-2 animate-fade-in border border-cyan-500">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>{toastMessage}</span>
-        </div>
+        <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
       )}
 
-      {/* Top Breadcrumb & Action Toolbar matching Screenshot 3 */}
-      <div className="bg-white p-3 rounded shadow-sm border border-slate-200">
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div className="flex items-center space-x-2">
-            <span className="text-xs font-semibold text-slate-500">Home</span>
-            <span className="text-xs text-slate-400">/</span>
-            <span className="text-xs font-bold text-slate-800">Client List</span>
-          </div>
+      {/* Unified Page Header */}
+      <PageHeader
+        title="Client Management & Provisioning"
+        subtitle="Manage subscriber profiles, PPPoE credentials, MikroTik sync, and service packages"
+        icon={Users}
+        breadcrumbs={[
+          { label: 'Home', onClick: () => {} },
+          { label: 'Client', onClick: () => {} },
+          { label: 'Client List' }
+        ]}
+        actions={
+          <>
+            <button
+              onClick={() => showToast('Exporting Client List to Excel (.xlsx)...')}
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-xs flex items-center gap-1.5 transition-colors shadow-xs"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <span>Export Excel</span>
+            </button>
 
-          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+            <button
+              onClick={() => showToast('Syncing all active clients with MikroTik RouterOS...')}
+              className="px-3 py-1.5 border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium rounded-lg text-xs flex items-center gap-1.5 transition-colors bg-white shadow-xs"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+              <span>Sync MikroTik</span>
+            </button>
+
             <button
               onClick={onOpenAddClient}
-              className="px-3 py-1.5 bg-[#00a2d3] hover:bg-[#008cb6] text-white font-semibold rounded shadow-sm flex items-center gap-1 transition-colors"
+              className="px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-lg text-xs shadow-xs flex items-center gap-1.5 transition-colors focus:ring-2 focus:ring-cyan-500"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add New Client</span>
             </button>
+          </>
+        }
+      />
 
-            <button
-              onClick={() => showToast('Exporting Client List to Excel (.xlsx)...')}
-              className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded flex items-center gap-1 transition-colors"
-            >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>Generate Excel</span>
-            </button>
-
-            <button
-              onClick={() => showToast('Generating PDF Client Report...')}
-              className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded flex items-center gap-1 transition-colors"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>Generate Pdf</span>
-            </button>
-
-            <button
-              onClick={() => showToast('Syncing all PPPoE clients with Mikrotik BBN-CORE...')}
-              className="px-2.5 py-1.5 bg-[#162e3d] hover:bg-[#203c4f] text-white font-medium rounded flex items-center gap-1 transition-colors"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Sync Clients &amp; Servers</span>
-            </button>
-
-            <button
-              onClick={() => showToast('Batch PPPoE MAC binding updated on RouterOS')}
-              className="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-800 text-white font-medium rounded transition-colors hidden sm:block"
-            >
-              Bind All PPOE MAC
-            </button>
+      {/* Stats Summary Bar */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Clients</div>
+            <div className="text-xl font-bold text-slate-900 mt-0.5">{safeClients.length}</div>
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-cyan-50 text-cyan-600 border border-cyan-100 flex items-center justify-center">
+            <Users className="w-4 h-4" />
           </div>
         </div>
 
-        {/* 4 Stat Cards Row matching Screenshot 3 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-white">
-          <div className="bg-[#00a2d3] p-3 rounded flex items-center justify-between shadow-sm">
-            <div>
-              <div className="text-xl font-bold">779</div>
-              <div className="text-xs text-cyan-100">Running Clients</div>
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Online / Active</div>
+            <div className="text-xl font-bold text-emerald-600 mt-0.5">
+              {safeClients.filter((c) => c.mikrotikStatus).length}
             </div>
-            <UserCheck className="w-6 h-6 text-cyan-200/60" />
           </div>
-
-          <div className="bg-[#009688] p-3 rounded flex items-center justify-between shadow-sm">
-            <div>
-              <div className="text-xl font-bold">4</div>
-              <div className="text-xs text-teal-100">New Clients</div>
-            </div>
-            <Plus className="w-6 h-6 text-teal-200/60" />
+          <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center">
+            <CheckCircle2 className="w-4 h-4" />
           </div>
+        </div>
 
-          <div className="bg-[#673ab7] p-3 rounded flex items-center justify-between shadow-sm">
-            <div>
-              <div className="text-xl font-bold">30</div>
-              <div className="text-xs text-purple-100">Renewed Clients</div>
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Offline / Paused</div>
+            <div className="text-xl font-bold text-rose-600 mt-0.5">
+              {safeClients.filter((c) => !c.mikrotikStatus).length}
             </div>
-            <RefreshCw className="w-6 h-6 text-purple-200/60" />
           </div>
+          <div className="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center">
+            <AlertCircle className="w-4 h-4" />
+          </div>
+        </div>
 
-          <div className="bg-[#455a64] p-3 rounded flex items-center justify-between shadow-sm">
-            <div>
-              <div className="text-xl font-bold">17</div>
-              <div className="text-xs text-slate-300">Waiver Clients</div>
+        <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+          <div>
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Monthly MRR</div>
+            <div className="text-xl font-bold text-cyan-800 mt-0.5">
+              ৳{safeClients.reduce((acc, c) => acc + (c.monthlyBill || 0), 0).toLocaleString()}
             </div>
-            <CheckCircle2 className="w-6 h-6 text-slate-400/60" />
+          </div>
+          <div className="w-9 h-9 rounded-lg bg-cyan-50 text-cyan-700 border border-cyan-100 flex items-center justify-center">
+            <DollarSign className="w-4 h-4" />
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-3 rounded shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="bg-white p-3 rounded-xl shadow-xs border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex flex-wrap items-center gap-2 flex-1">
-          <div className="relative flex-1 min-w-[200px] max-w-md">
+          <div className="relative flex-1 min-w-[220px] max-w-md">
             <input
               type="text"
               placeholder="Search by Code, Username, Mobile, Name, or MAC..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded text-slate-800 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white"
+              className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:bg-white transition-colors"
             />
             <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
           </div>
@@ -222,7 +218,7 @@ export const ClientListView: React.FC<ClientListViewProps> = ({
           <select
             value={selectedZone}
             onChange={(e) => setSelectedZone(e.target.value)}
-            className="px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded text-slate-700 focus:outline-none focus:border-cyan-500"
+            className="px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-700 focus:outline-none focus:border-cyan-500"
           >
             <option value="All">All Zones</option>
             <option value="Jamtola">Jamtola</option>
@@ -235,7 +231,7 @@ export const ClientListView: React.FC<ClientListViewProps> = ({
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded text-slate-700 focus:outline-none focus:border-cyan-500"
+            className="px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-700 focus:outline-none focus:border-cyan-500"
           >
             <option value="All">All Client Types</option>
             <option value="Home">Home</option>
@@ -244,240 +240,237 @@ export const ClientListView: React.FC<ClientListViewProps> = ({
           </select>
         </div>
 
-        <div className="text-slate-500">
-          Showing <span className="font-bold text-slate-800">{filteredClients.length}</span> of {clients.length} clients
+        <div className="text-slate-500 font-medium">
+          Showing <span className="font-bold text-slate-800">{filteredClients.length}</span> of {safeClients.length} clients
         </div>
       </div>
 
-      {/* Clients Data Table matching Screenshot 3 */}
-      <div className="bg-white rounded shadow-sm border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-700">
-            <thead className="bg-[#162e3d] text-white uppercase text-[11px] font-semibold tracking-wider">
-              <tr>
-                <th className="p-2.5 w-8 text-center">
-                  <input
-                    type="checkbox"
-                    checked={
-                      selectedClientIds.length > 0 &&
-                      selectedClientIds.length === clients.length
-                    }
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="rounded border-slate-300 text-cyan-600 focus:ring-0"
-                  />
-                </th>
-                <th className="p-2.5">C.Code</th>
-                <th className="p-2.5">ID/IP</th>
-                <th className="p-2.5">Password</th>
-                <th className="p-2.5">Cus. Name</th>
-                <th className="p-2.5">Mobile</th>
-                <th className="p-2.5">Zone</th>
-                <th className="p-2.5">Conn. Type</th>
-                <th className="p-2.5">Cus. Type</th>
-                <th className="p-2.5">R.Address</th>
-                <th className="p-2.5">Package/Speed</th>
-                <th className="p-2.5 text-right">M.Bill</th>
-                <th className="p-2.5">MAC Addrs</th>
-                <th className="p-2.5">Server</th>
-                <th className="p-2.5 text-center">B.Status</th>
-                <th className="p-2.5 text-center">M.Status</th>
-                <th className="p-2.5 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {filteredClients.map((client) => {
-                const isSelected = selectedClientIds.includes(client.id);
-                const isPasswordRevealed = Boolean(revealedPasswords[client.id]);
+      {/* Clients Data Table */}
+      <div className="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden">
+        {filteredClients.length === 0 ? (
+          <EmptyState
+            title="No Clients Found"
+            description="No clients match your filter criteria. Try clearing search keywords or resetting zone filter."
+            action={{
+              label: 'Reset Filters',
+              onClick: () => {
+                setSearchTerm('');
+                setSelectedZone('All');
+                setSelectedType('All');
+              }
+            }}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-700 border-collapse">
+              <thead className="bg-[#162e3d] text-white uppercase text-[11px] font-semibold tracking-wider">
+                <tr>
+                  <th className="p-3 w-8 text-center">
+                    <input
+                      type="checkbox"
+                      checked={
+                        selectedClientIds.length > 0 &&
+                        selectedClientIds.length === filteredClients.length
+                      }
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                    />
+                  </th>
+                  <th className="p-3">C.Code</th>
+                  <th className="p-3">ID / PPPoE</th>
+                  <th className="p-3">Password</th>
+                  <th className="p-3">Customer Name</th>
+                  <th className="p-3">Mobile</th>
+                  <th className="p-3">Zone</th>
+                  <th className="p-3">Conn.</th>
+                  <th className="p-3">Package / Speed</th>
+                  <th className="p-3 text-right">M.Bill (৳)</th>
+                  <th className="p-3">Server</th>
+                  <th className="p-3 text-center">Billing</th>
+                  <th className="p-3 text-center">MikroTik</th>
+                  <th className="p-3 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredClients.map((client) => {
+                  const isSelected = selectedClientIds.includes(client.id);
+                  const isPasswordRevealed = Boolean(revealedPasswords[client.id]);
 
-                return (
-                  <tr
-                    key={client.id}
-                    className={`hover:bg-cyan-50/60 transition-colors ${
-                      isSelected ? 'bg-cyan-50/80' : ''
-                    }`}
-                  >
-                    <td className="p-2.5 text-center">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => toggleSelectOne(client.id)}
-                        className="rounded border-slate-300 text-cyan-600 focus:ring-0"
-                      />
-                    </td>
-
-                    {/* C.Code */}
-                    <td className="p-2.5 font-bold text-[#162e3d] font-mono">
-                      <button
-                        onClick={() => handleSelectClient(client)}
-                        className="hover:underline text-cyan-700"
-                        title="View Full Client 360 Profile"
-                      >
-                        {client.code}
-                      </button>
-                    </td>
-
-                    {/* ID/IP */}
-                    <td className="p-2.5 font-semibold text-slate-900">
-                      <button
-                        onClick={() => handleSelectClient(client)}
-                        className="hover:text-cyan-600"
-                      >
-                        {client.username}
-                      </button>
-                    </td>
-
-                    {/* Password with Eye Toggle */}
-                    <td className="p-2.5 font-mono">
-                      <div className="flex items-center space-x-1.5">
-                        <span>{isPasswordRevealed ? 'haven123' : '••••••••'}</span>
-                        <button
-                          onClick={() => togglePasswordReveal(client.id)}
-                          className="text-slate-400 hover:text-slate-600"
-                          title={isPasswordRevealed ? 'Hide Password' : 'Show Password'}
-                        >
-                          {isPasswordRevealed ? (
-                            <EyeOff className="w-3 h-3 text-cyan-600" />
-                          ) : (
-                            <Eye className="w-3 h-3" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-
-                    {/* Customer Name */}
-                    <td className="p-2.5 font-medium text-slate-900 whitespace-nowrap">
-                      {client.name}
-                    </td>
-
-                    {/* Mobile */}
-                    <td className="p-2.5 font-mono text-slate-700">{client.mobile}</td>
-
-                    {/* Zone */}
-                    <td className="p-2.5">
-                      <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
-                        {client.zone}
-                      </span>
-                    </td>
-
-                    {/* Conn. Type */}
-                    <td className="p-2.5 whitespace-nowrap">{client.connectionType}</td>
-
-                    {/* Customer Type */}
-                    <td className="p-2.5">
-                      <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                          client.clientType === 'Corporate'
-                            ? 'bg-purple-100 text-purple-800'
-                            : client.clientType === 'Shop User'
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}
-                      >
-                        {client.clientType}
-                      </span>
-                    </td>
-
-                    {/* R.Address */}
-                    <td className="p-2.5 text-slate-600 max-w-[150px] truncate" title={client.address}>
-                      {client.address}
-                    </td>
-
-                    {/* Package/Speed */}
-                    <td className="p-2.5 font-mono text-[11px] font-medium text-slate-800">
-                      {client.packageSpeed}
-                    </td>
-
-                    {/* Monthly Bill */}
-                    <td className="p-2.5 text-right font-mono font-bold text-slate-900">
-                      {client.monthlyBill.toFixed(2)}
-                    </td>
-
-                    {/* MAC Addrs */}
-                    <td className="p-2.5 font-mono text-[11px] text-slate-600">
-                      {client.macAddress}
-                    </td>
-
-                    {/* Server */}
-                    <td className="p-2.5">
-                      <span className="px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-800 font-semibold text-[10px]">
-                        {client.server}
-                      </span>
-                    </td>
-
-                    {/* Billing Status */}
-                    <td className="p-2.5 text-center">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                        {client.billingStatus}
-                      </span>
-                    </td>
-
-                    {/* Mikrotik Status Toggle */}
-                    <td className="p-2.5 text-center">
-                      <button
-                        onClick={() => handleToggle(client.id)}
-                        className={`relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          client.mikrotikStatus ? 'bg-emerald-500' : 'bg-slate-300'
-                        }`}
-                        title={
-                          client.mikrotikStatus
-                            ? 'Mikrotik Session Enabled - Click to Disable'
-                            : 'Mikrotik Disabled - Click to Enable'
-                        }
-                      >
-                        <span
-                          className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            client.mikrotikStatus ? 'translate-x-4' : 'translate-x-0'
-                          }`}
+                  return (
+                    <tr
+                      key={client.id}
+                      className={`hover:bg-cyan-50/50 transition-colors ${
+                        isSelected ? 'bg-cyan-50/80' : ''
+                      }`}
+                    >
+                      <td className="p-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelectOne(client.id)}
+                          className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
                         />
-                      </button>
-                    </td>
+                      </td>
 
-                    {/* Action */}
-                    <td className="p-2.5 text-center">
-                      <div className="flex items-center justify-center space-x-1">
-                        {/* 360 View */}
+                      {/* C.Code */}
+                      <td className="p-3 font-bold text-[#162e3d] font-mono">
                         <button
                           onClick={() => handleSelectClient(client)}
-                          className="p-1 text-slate-500 hover:text-cyan-700 hover:bg-slate-100 rounded"
-                          title="View 360-degree Profile"
+                          className="hover:underline text-cyan-700 focus:outline-none"
+                          title="View Full Client 360 Profile"
                         >
-                          <ExternalLink className="w-3.5 h-3.5" />
+                          {client.code}
                         </button>
+                      </td>
 
-                        {/* Bill Receive */}
+                      {/* ID/IP */}
+                      <td className="p-3 font-semibold text-slate-900">
                         <button
-                          onClick={() => handleBillReceive(client.code)}
-                          className="p-1 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded"
-                          title="Collect Bill for this client"
+                          onClick={() => handleSelectClient(client)}
+                          className="hover:text-cyan-600 focus:outline-none"
                         >
-                          <DollarSign className="w-3.5 h-3.5" />
+                          {client.username}
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+
+                      {/* Password with Eye Toggle */}
+                      <td className="p-3 font-mono">
+                        <div className="flex items-center space-x-1.5">
+                          <span className="text-slate-600">
+                            {isPasswordRevealed ? 'haven123' : '••••••••'}
+                          </span>
+                          <button
+                            onClick={() => togglePasswordReveal(client.id)}
+                            className="text-slate-400 hover:text-slate-600 p-0.5 rounded focus:outline-none"
+                            title={isPasswordRevealed ? 'Hide Password' : 'Show Password'}
+                          >
+                            {isPasswordRevealed ? (
+                              <EyeOff className="w-3.5 h-3.5 text-cyan-600" />
+                            ) : (
+                              <Eye className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
+                      </td>
+
+                      {/* Customer Name */}
+                      <td className="p-3 font-medium text-slate-900 whitespace-nowrap">
+                        {client.name}
+                      </td>
+
+                      {/* Mobile */}
+                      <td className="p-3 font-mono text-slate-600">{client.mobile}</td>
+
+                      {/* Zone */}
+                      <td className="p-3">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium text-[11px]">
+                          {client.zone}
+                        </span>
+                      </td>
+
+                      {/* Conn. Type */}
+                      <td className="p-3 whitespace-nowrap text-slate-600">{client.connectionType}</td>
+
+                      {/* Package/Speed */}
+                      <td className="p-3 font-mono text-[11px] font-medium text-slate-800">
+                        {client.packageSpeed}
+                      </td>
+
+                      {/* Monthly Bill */}
+                      <td className="p-3 text-right font-mono font-bold text-slate-900">
+                        {client.monthlyBill.toFixed(2)}
+                      </td>
+
+                      {/* Server */}
+                      <td className="p-3">
+                        <span className="px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-800 border border-cyan-200 font-semibold text-[10px]">
+                          {client.server}
+                        </span>
+                      </td>
+
+                      {/* Billing Status */}
+                      <td className="p-3 text-center">
+                        <StatusBadge status={client.billingStatus} type="billing" />
+                      </td>
+
+                      {/* Mikrotik Status Toggle */}
+                      <td className="p-3 text-center">
+                        <button
+                          onClick={() => handleToggle(client.id)}
+                          className={`relative inline-flex h-4 w-8 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-1 focus:ring-cyan-500 ${
+                            client.mikrotikStatus ? 'bg-emerald-500' : 'bg-slate-300'
+                          }`}
+                          title={
+                            client.mikrotikStatus
+                              ? 'MikroTik Session Active - Click to Disable'
+                              : 'MikroTik Disabled - Click to Enable'
+                          }
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-3 w-3 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                              client.mikrotikStatus ? 'translate-x-4' : 'translate-x-0'
+                            }`}
+                          />
+                        </button>
+                      </td>
+
+                      {/* Action */}
+                      <td className="p-3 text-center">
+                        <div className="flex items-center justify-center space-x-1.5">
+                          {/* 360 View */}
+                          <button
+                            onClick={() => handleSelectClient(client)}
+                            className="p-1.5 text-slate-500 hover:text-cyan-700 hover:bg-cyan-50 rounded-md transition-colors"
+                            title="View 360-degree Profile"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Bill Receive */}
+                          <button
+                            onClick={() => handleBillReceive(client.code)}
+                            className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md transition-colors"
+                            title="Collect Bill for this client"
+                          >
+                            <DollarSign className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Footer Pagination Bar */}
-        <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between text-xs text-slate-500">
-          <div>
-            Showing 1 to {filteredClients.length} of {filteredClients.length} entries
+        {filteredClients.length > 0 && (
+          <div className="p-3 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between text-xs text-slate-500">
+            <div>
+              Showing <span className="font-semibold text-slate-700">1</span> to{' '}
+              <span className="font-semibold text-slate-700">{filteredClients.length}</span> of{' '}
+              <span className="font-semibold text-slate-700">{filteredClients.length}</span> entries
+            </div>
+            <div className="flex items-center space-x-1">
+              <button
+                disabled
+                className="px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-slate-400 cursor-not-allowed opacity-60"
+              >
+                Previous
+              </button>
+              <button className="px-2.5 py-1 rounded-lg bg-[#162e3d] text-white font-semibold shadow-xs">
+                1
+              </button>
+              <button
+                disabled
+                className="px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-slate-400 cursor-not-allowed opacity-60"
+              >
+                Next
+              </button>
+            </div>
           </div>
-          <div className="flex items-center space-x-1">
-            <button className="px-2.5 py-1 rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-50">
-              Previous
-            </button>
-            <button className="px-2.5 py-1 rounded bg-[#162e3d] text-white font-semibold">
-              1
-            </button>
-            <button className="px-2.5 py-1 rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-50">
-              Next
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

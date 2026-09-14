@@ -143,15 +143,21 @@ export interface AutomatedProcessItem {
   branch: string;
   processName: string;
   executeAt: string;
-  interval: 'Daily' | 'Hourly' | 'Monthly';
+  interval: 'Daily' | 'Hourly' | 'Monthly' | 'Minutely' | 'Yearly' | 'Custom';
   executionDay: string;
   status: 'Active' | 'Paused';
+  category?: 'System' | 'Admin Customer' | 'POP' | 'POP Customer' | 'Bandwidth POP';
   lastRun?: string;
+  nextRun?: string;
   name?: string;
   description?: string;
   frequency?: string;
-  nextRun?: string;
   enabled?: boolean;
+  targetSubsystem?: string;
+  cronPattern?: string;
+  recordsAffected?: number;
+  lastRunDuration?: string;
+  lastRunStatus?: 'Success' | 'Warning' | 'Error';
 }
 
 export interface SmsTemplateItem {

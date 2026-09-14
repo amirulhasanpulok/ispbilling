@@ -18,6 +18,7 @@ import { SupportTicketingView } from './components/SupportTicketingView';
 import { CustomerDashboardView } from './components/CustomerDashboardView';
 import { ResellerPopView } from './components/ResellerPopView';
 import { AutomatedSettingsView } from './components/AutomatedSettingsView';
+import { AutomaticProcessView } from './components/AutomaticProcessView';
 import { NetworkMonitorView } from './components/NetworkMonitorView';
 import { AccountingView } from './components/AccountingView';
 import { ReportsView } from './components/ReportsView';
@@ -39,6 +40,7 @@ import {
 } from './mockData';
 
 import { Client, BillRecord, PaymentReceipt, SupportTicket } from './types';
+import { Toast } from './components/common';
 
 export default function App() {
   // Navigation & Portal Mode
@@ -296,12 +298,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#f4f7f9] flex flex-col font-sans text-slate-800 antialiased selection:bg-cyan-500 selection:text-white">
-      {/* Toast Bar */}
+      {/* Toast Notification */}
       {toastNotification && (
-        <div className="fixed top-14 right-6 bg-slate-900 text-white px-4 py-2.5 rounded shadow-2xl text-xs z-50 flex items-center gap-2 border border-cyan-500 animate-fade-in">
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-          <span className="font-medium">{toastNotification}</span>
-        </div>
+        <Toast
+          message={toastNotification}
+          onClose={() => setToastNotification(null)}
+        />
       )}
 
       {/* Global Header */}
@@ -530,9 +532,23 @@ export default function App() {
                 triggerToast('POP Reseller bill collected successfully!');
               }}
             />
+          ) : activeNav === 'automatic-process' ? (
+            <AutomaticProcessView
+              processes={automatedProcesses}
+              onUpdateProcess={(updated) => {
+                setAutomatedProcesses((prev) =>
+                  prev.map((p) => (p.id === updated.id ? updated : p))
+                );
+              }}
+              onRunProcess={(id) => {
+                const proc = automatedProcesses.find((p) => p.id === id);
+                triggerToast(`Dispatched cron job: ${proc?.processName || id}`);
+              }}
+              onShowToast={triggerToast}
+            />
           ) : activeNav === 'sms-gateway' ? (
             <SmsGatewayView onShowToast={triggerToast} />
-          ) : activeNav === 'sms-individual' || activeNav === 'sms-group' || activeNav === 'sms-send' || activeNav === 'automation' || activeNav === 'sms' || activeNav === 'automatic-process' || activeNav === 'sms-templates' ? (
+          ) : activeNav === 'sms-individual' || activeNav === 'sms-group' || activeNav === 'sms-send' || activeNav === 'automation' || activeNav === 'sms' || activeNav === 'sms-templates' ? (
             <AutomatedSettingsView
               automatedProcesses={automatedProcesses}
               smsTemplates={smsTemplates}

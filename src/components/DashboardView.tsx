@@ -34,6 +34,7 @@ import {
   PhoneCall
 } from 'lucide-react';
 import { Client, BillRecord } from '../types';
+import { PageHeader } from './common';
 
 interface DashboardViewProps {
   clients?: Client[];
@@ -191,37 +192,31 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const maxBarHeight = 748;
 
   return (
-    <div className="p-4 space-y-5 bg-[#f4f7f9] min-h-screen text-slate-800">
-      {/* Top Banner with Quick Actions & System Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded shadow-xs border border-slate-200">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <h2 className="text-base font-bold text-[#162e3d]">
-              Network Operations &amp; Billing Command Center
-            </h2>
-          </div>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Current Billing Cycle: September 2026 | MikroTik Gateway: BBN-CORE (157.10.238.100) | Uptime: 99.98%
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onNavigate('billing')}
-            className="px-3 py-1.5 bg-[#00c0ef] hover:bg-[#00a7d0] text-white text-xs font-semibold rounded shadow-xs flex items-center gap-1.5 transition-colors"
-          >
-            <CreditCard className="w-3.5 h-3.5" />
-            <span>Process Bill Collection</span>
-          </button>
-          <button
-            onClick={() => onNavigate('mikrotik-monitor')}
-            className="px-3 py-1.5 bg-[#2ecc71] hover:bg-[#27ae60] text-white text-xs font-semibold rounded shadow-xs flex items-center gap-1.5 transition-colors"
-          >
-            <Wifi className="w-3.5 h-3.5" />
-            <span>Live Bandwidth Monitor</span>
-          </button>
-        </div>
-      </div>
+    <div className="p-4 sm:p-5 space-y-4 bg-slate-50 min-h-[calc(100vh-3.5rem)] text-slate-800">
+      {/* Top PageHeader */}
+      <PageHeader
+        title="Network Operations & Billing Command Center"
+        subtitle="Current Billing Cycle: September 2026 | MikroTik Gateway: BBN-CORE (157.10.238.100) | Uptime: 99.98%"
+        icon={Activity}
+        actions={
+          <>
+            <button
+              onClick={() => onNavigate('billing')}
+              className="px-3 py-1.5 bg-[#00c0ef] hover:bg-[#00a7d0] text-white text-xs font-semibold rounded-lg shadow-xs flex items-center gap-1.5 transition-colors"
+            >
+              <CreditCard className="w-3.5 h-3.5" />
+              <span>Process Bill Collection</span>
+            </button>
+            <button
+              onClick={() => onNavigate('mikrotik-monitor')}
+              className="px-3 py-1.5 bg-[#2ecc71] hover:bg-[#27ae60] text-white text-xs font-semibold rounded-lg shadow-xs flex items-center gap-1.5 transition-colors"
+            >
+              <Wifi className="w-3.5 h-3.5" />
+              <span>Live Bandwidth Monitor</span>
+            </button>
+          </>
+        }
+      />
 
       {/* SMS Gateway & Notification Broadcast KPI Cards (Exact replica of User Reference Image) */}
       <div className="space-y-1.5">
