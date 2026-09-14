@@ -1,0 +1,6 @@
+{
+  "name": "Bhurungamari Broadband Network (BBN) - ISP Billing & Network Portal",
+  "description": "Comprehensive ISP billing portal for client subscriptions, automated invoicing, real-time bandwidth monitoring, and customer self-service dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
