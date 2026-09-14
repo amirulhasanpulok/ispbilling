@@ -217,3 +217,52 @@ export interface ModulePermissionItem {
   canEdit: boolean;
   canDelete: boolean;
 }
+
+export type DedupEntityType = 'client' | 'network' | 'transaction' | 'account';
+
+export interface DedupRecordCandidate {
+  id: string;
+  code: string;
+  primaryLabel: string;
+  secondaryLabel?: string;
+  matchField: string;
+  matchValue: string;
+  ipAddress?: string;
+  macAddress?: string;
+  phone?: string;
+  email?: string;
+  nid?: string;
+  package?: string;
+  status: 'Active' | 'Pending' | 'Suspended' | 'Closed' | 'Unverified';
+  balance?: number;
+  branch: string;
+  createdAt: string;
+  lastActive?: string;
+}
+
+export interface DedupCluster {
+  id: string;
+  entityType: DedupEntityType;
+  conflictKey: string;
+  conflictField: string;
+  conflictValue: string;
+  severity: 'Critical' | 'High' | 'Medium' | 'Low';
+  similarityScore: number;
+  detectedAt: string;
+  status: 'Pending' | 'Resolved' | 'Ignored';
+  resolutionAction?: 'merged' | 'purged' | 'whitelisted';
+  candidates: DedupRecordCandidate[];
+  selectedMasterId: string;
+}
+
+export interface DedupRuleSettings {
+  blockDuplicateMobile: boolean;
+  blockDuplicateNid: boolean;
+  blockDuplicateMac: boolean;
+  blockDuplicateIp: boolean;
+  blockDuplicateTrxId: boolean;
+  autoScanInterval: 'Hourly' | 'Daily' | 'Weekly' | 'Disabled';
+  fuzzyThreshold: number;
+  notifyAdminsOnConflict: boolean;
+}
+

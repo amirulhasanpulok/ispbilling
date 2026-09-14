@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { PageHeader } from './common';
+import { DeduplicationView } from './DeduplicationView';
+import { SmsGatewayView } from './SmsGatewayView';
 import {
   Settings,
   Building,
@@ -12,15 +15,18 @@ import {
   RotateCw,
   Clock,
   Lock,
-  Globe
+  Globe,
+  Layers,
+  MessageSquare
 } from 'lucide-react';
 
 interface SystemConfigViewProps {
-  initialTab?: 'company' | 'billing-rules' | 'mikrotik' | 'payment-gateways' | 'invoice' | 'periods' | 'email' | 'vat' | 'logs';
+  initialTab?: 'company' | 'sms-gateway' | 'billing-rules' | 'mikrotik' | 'payment-gateways' | 'invoice' | 'periods' | 'email' | 'vat' | 'logs' | 'deduplication';
+  onShowToast?: (message: string, type: 'success' | 'error' | 'warning' | 'info') => void;
 }
 
-export const SystemConfigView: React.FC<SystemConfigViewProps> = ({ initialTab = 'company' }) => {
-  const [activeTab, setActiveTab] = useState<'company' | 'billing-rules' | 'mikrotik' | 'payment-gateways' | 'invoice' | 'periods' | 'email' | 'vat' | 'logs'>(initialTab);
+export const SystemConfigView: React.FC<SystemConfigViewProps> = ({ initialTab = 'company', onShowToast }) => {
+  const [activeTab, setActiveTab] = useState<'company' | 'sms-gateway' | 'billing-rules' | 'mikrotik' | 'payment-gateways' | 'invoice' | 'periods' | 'email' | 'vat' | 'logs' | 'deduplication'>(initialTab);
   const [toast, setToast] = useState<string | null>(null);
 
   React.useEffect(() => {
@@ -90,21 +96,17 @@ export const SystemConfigView: React.FC<SystemConfigViewProps> = ({ initialTab =
       )}
 
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 rounded shadow-sm border border-slate-200">
-        <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-[#162e3d] text-cyan-400 rounded">
-            <Settings className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-slate-800 flex items-center gap-2">
-              System Configuration & ISP Operating Parameters
-            </h1>
-            <p className="text-xs text-slate-500">
-              Company Credentials, Mikrotik API Connection, Billing Policies & Payment Gateways
-            </p>
-          </div>
-        </div>
+      <PageHeader
+        title="Configuration"
+        subtitle="Manage company profile, billing policies, MikroTik RouterOS API parameters, invoice templates, and payment gateways"
+        icon={Settings}
+        breadcrumbs={[
+          { label: 'Setting' },
+          { label: 'Configuration' }
+        ]}
+      />
 
+      <div className="bg-white p-2.5 rounded-lg shadow-xs border border-slate-200">
         <div className="flex flex-wrap rounded border border-slate-200 p-0.5 bg-slate-100 text-xs font-medium gap-1">
           <button
             onClick={() => setActiveTab('company')}
@@ -113,6 +115,26 @@ export const SystemConfigView: React.FC<SystemConfigViewProps> = ({ initialTab =
             }`}
           >
             Company Profile
+          </button>
+          <button
+            id="tab-sms-gateway"
+            onClick={() => setActiveTab('sms-gateway')}
+            className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 ${
+              activeTab === 'sms-gateway' ? 'bg-white shadow text-cyan-700 font-bold' : 'text-slate-600'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-cyan-600" />
+            <span>SMS Gateway</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('deduplication')}
+            className={`px-2.5 py-1 rounded transition-colors flex items-center gap-1.5 ${
+              activeTab === 'deduplication' ? 'bg-white shadow text-cyan-700 font-bold' : 'text-slate-600'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5 text-cyan-600" />
+            <span>Data Deduplication</span>
+            <span className="px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded-full text-[10px] font-bold">4</span>
           </button>
           <button
             onClick={() => setActiveTab('invoice')}
@@ -182,7 +204,12 @@ export const SystemConfigView: React.FC<SystemConfigViewProps> = ({ initialTab =
       </div>
 
       {/* Main Settings Body */}
-      <form onSubmit={handleSaveSettings} className="bg-white rounded border border-slate-200 shadow-sm p-5 max-w-3xl mx-auto space-y-6">
+      {activeTab === 'deduplication' ? (
+        <DeduplicationView embedded={true} onShowToast={onShowToast || ((msg) => setToast(msg))} />
+      ) : activeTab === 'sms-gateway' ? (
+        <SmsGatewayView embedded={true} onShowToast={(msg) => onShowToast ? onShowToast(msg, 'success') : setToast(msg)} />
+      ) : (
+        <form onSubmit={handleSaveSettings} className="bg-white rounded border border-slate-200 shadow-sm p-5 max-w-3xl mx-auto space-y-6">
         {/* Tab 1: Company Profile */}
         {activeTab === 'company' && (
           <div className="space-y-4">
@@ -643,6 +670,7 @@ export const SystemConfigView: React.FC<SystemConfigViewProps> = ({ initialTab =
           </button>
         </div>
       </form>
+      )}
     </div>
   );
 };

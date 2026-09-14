@@ -65,6 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const activeId = activeNav || currentView || 'dashboard';
   const [menuSearch, setMenuSearch] = useState('');
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
+    setting: true,
     client: true,
     billing: true,
     mikrotik: true,
@@ -97,16 +98,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Dashboard',
       icon: Home,
       action: () => handleItemClick(() => onNavigate('dashboard'))
-    },
-    {
-      id: 'configuration',
-      label: 'Configuration',
-      icon: Settings,
-      hasSub: true,
-      subItems: [
-        { id: 'settings', label: 'General Settings', action: () => handleItemClick(() => onNavigate('settings')) },
-        { id: 'system-setup', label: 'System Setup', action: () => handleItemClick(() => onNavigate('system-setup')) }
-      ]
     },
     {
       id: 'vas',
@@ -317,22 +308,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       action: () => handleItemClick(() => onNavigate('affiliation'))
     },
     {
-      id: 'system',
-      label: 'System',
-      icon: Sliders,
+      id: 'setting',
+      label: 'Setting',
+      icon: Settings,
       hasSub: true,
       subItems: [
-        { id: 'sys-app-users', label: 'App Users', action: () => handleItemClick(() => onNavigate('app-users')) },
-        { id: 'sys-company', label: 'Company SetUp', action: () => handleItemClick(() => onNavigate('company-settings')) },
-        { id: 'sys-invoice', label: 'Invoice SetUp', action: () => handleItemClick(() => onNavigate('company-settings')) },
-        { id: 'sys-periods', label: 'Periods SetUp', action: () => handleItemClick(() => onNavigate('company-settings')) },
-        { id: 'sys-gateways', label: 'Payment Gateways', action: () => handleItemClick(() => onNavigate('system-setup')) },
-        { id: 'sys-email', label: 'EMail SetUp', action: () => handleItemClick(() => handleItemClick(() => onNavigate('system-setup'))) },
-        { id: 'sys-setup', label: 'System SetUp', action: () => handleItemClick(() => onNavigate('system-setup')) },
-        { id: 'sys-fee', label: 'P. Processing Fee', action: () => handleItemClick(() => onNavigate('system-setup')) },
-        { id: 'sys-vat', label: 'VAT SetUp', action: () => handleItemClick(() => onNavigate('system-setup')) },
-        { id: 'sys-activity', label: 'Activity Loggers', action: () => handleItemClick(() => onNavigate('system-setup')) },
-        { id: 'sys-auto', label: 'Automatic Process', action: () => handleItemClick(() => onNavigate('automatic-process')) }
+        { id: 'sys-config', label: 'Configuration', action: () => handleItemClick(() => onNavigate('configuration')) },
+        { id: 'sys-app-users', label: 'App User', action: () => handleItemClick(() => onNavigate('app-users')) }
       ]
     },
     {
@@ -414,9 +396,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 if (sub.id === 'sms-group' && activeId === 'sms-group') return true;
                 if (sub.id === 'sms-send' && activeId === 'sms-send') return true;
                 if (sub.id === 'sys-auto' && (activeId === 'automatic-process' || activeId === 'automation')) return true;
+                if (sub.id === 'sys-dedup' && (activeId === 'deduplication' || activeId === 'system-deduplication')) return true;
                 if (sub.id === 'sys-app-users' && (activeId === 'app-users' || activeId === 'application-users')) return true;
                 if (sub.id === 'sys-company' && activeId === 'company-settings') return true;
                 if (sub.id === 'sys-setup' && activeId === 'system-setup') return true;
+                if ((sub.id === 'configuration' || sub.id === 'sys-config') && (activeId === 'configuration' || activeId === 'system-config' || activeId === 'setting' || activeId === 'settings')) return true;
                 return sub.id === activeId;
               }));
 
@@ -501,6 +485,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       (sub.id === 'acc-expense' && activeId === 'expense') ||
                       (sub.id === 'acc-cash' && activeId === 'daily-account') ||
                       (sub.id === 'sys-auto' && (activeId === 'automatic-process' || activeId === 'automation')) ||
+                      (sub.id === 'sys-dedup' && (activeId === 'deduplication' || activeId === 'system-deduplication')) ||
                       (sub.id === 'sms-individual' && activeId === 'sms-individual') ||
                       (sub.id === 'sms-group' && activeId === 'sms-group') ||
                       (sub.id === 'sms-send' && activeId === 'sms-send') ||
@@ -509,6 +494,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       (sub.id === 'sys-company' && activeId === 'company-settings') ||
                       (sub.id === 'sys-setup' && activeId === 'system-setup') ||
                       (sub.id === 'sys-app-users' && (activeId === 'app-users' || activeId === 'application-users')) ||
+                      ((sub.id === 'configuration' || sub.id === 'sys-config') && (activeId === 'configuration' || activeId === 'system-config' || activeId === 'setting' || activeId === 'settings')) ||
                       (sub.id === 'hr-payslip' && activeId === 'hr-payslip');
 
                     return (

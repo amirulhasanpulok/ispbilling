@@ -23,6 +23,7 @@ import { NetworkMonitorView } from './components/NetworkMonitorView';
 import { AccountingView } from './components/AccountingView';
 import { ReportsView } from './components/ReportsView';
 import { SystemConfigView } from './components/SystemConfigView';
+import { DeduplicationView } from './components/DeduplicationView';
 import { VasBdixView } from './components/VasBdixView';
 import { ApplicationUsersView } from './components/ApplicationUsersView';
 import { SmsGatewayView } from './components/SmsGatewayView';
@@ -480,11 +481,20 @@ export default function App() {
             />
           ) : activeNav === 'app-users' || activeNav === 'application-users' ? (
             <ApplicationUsersView onShowToast={triggerToast} />
-          ) : activeNav === 'system-config' || activeNav === 'settings' || activeNav === 'system-setup' || activeNav === 'company-settings' ? (
+          ) : activeNav === 'deduplication' || activeNav === 'system-deduplication' ? (
+            <DeduplicationView onShowToast={triggerToast} />
+          ) : activeNav === 'system-config' || activeNav === 'settings' || activeNav === 'system-setup' || activeNav === 'company-settings' || activeNav === 'configuration' || activeNav === 'setting' || activeNav === 'system' ? (
             <SystemConfigView
               initialTab={
-                activeNav === 'company-settings' ? 'company' : 'mikrotik'
+                activeNav === 'company-settings'
+                  ? 'company'
+                  : activeNav === 'settings' || activeNav === 'setting'
+                  ? 'billing-rules'
+                  : activeNav === 'system-setup'
+                  ? 'payment-gateways'
+                  : 'company'
               }
+              onShowToast={triggerToast}
             />
           ) : activeNav === 'vas' ? (
             <VasBdixView />

@@ -17,7 +17,8 @@ import {
   Sliders,
   Mail,
   ShieldCheck,
-  X
+  X,
+  Layers
 } from 'lucide-react';
 import { Client } from '../types';
 
@@ -365,13 +366,24 @@ export const Header: React.FC<HeaderProps> = ({
 
                 <button
                   onClick={() => {
-                    onNavigate('system-setup');
+                    onNavigate('configuration');
                     setUserDropdownOpen(false);
                   }}
                   className="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center space-x-2 text-slate-700"
                 >
-                  <Sliders className="w-3.5 h-3.5 text-slate-500" />
-                  <span>System Configuration</span>
+                  <Settings className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Configuration</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    onNavigate('deduplication');
+                    setUserDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-3.5 py-2 hover:bg-slate-100 flex items-center space-x-2 text-slate-700"
+                >
+                  <Layers className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Data Deduplication</span>
                 </button>
 
                 <div className="border-t border-slate-100 my-1" />

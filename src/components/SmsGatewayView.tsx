@@ -21,6 +21,7 @@ import {
 import { SmsGatewayConfig } from '../types';
 
 interface SmsGatewayViewProps {
+  embedded?: boolean;
   onShowToast?: (message: string) => void;
 }
 
@@ -86,7 +87,7 @@ const INITIAL_RECENT_LOGS: SmsLogItem[] = [
   }
 ];
 
-export const SmsGatewayView: React.FC<SmsGatewayViewProps> = ({ onShowToast }) => {
+export const SmsGatewayView: React.FC<SmsGatewayViewProps> = ({ embedded = false, onShowToast }) => {
   const [config, setConfig] = useState<SmsGatewayConfig>(INITIAL_GATEWAY_CONFIG);
   const [showPassword, setShowPassword] = useState(false);
   const [actualPassword, setActualPassword] = useState('bbn_khude_secret_2026');
@@ -143,36 +144,38 @@ export const SmsGatewayView: React.FC<SmsGatewayViewProps> = ({ onShowToast }) =
   };
 
   return (
-    <div className="p-4 md:p-6 bg-[#f4f7f9] min-h-[calc(100vh-3.5rem)] text-slate-800">
-      {/* Top Header & Breadcrumb (matches screenshot) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-2">
-        <div className="flex items-center space-x-2">
-          <div className="w-7 h-7 rounded flex items-center justify-center text-slate-700">
-            <MessageSquare className="w-5 h-5 text-slate-700" />
-          </div>
-          <div className="flex items-baseline space-x-2">
-            <h2 className="text-base font-bold text-slate-900 tracking-tight">SMS Service</h2>
-            <span className="text-xs text-slate-500 font-normal">SMS Gateway Setup</span>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-2 text-xs">
-          <div className="flex items-center space-x-1 text-slate-500 font-medium">
-            <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
-            <span>SMS Service</span>
-            <span className="text-slate-400">&gt;</span>
-            <span className="text-slate-700 font-semibold">SMS Gateway Setup</span>
+    <div className={embedded ? "space-y-4" : "p-4 md:p-6 bg-[#f4f7f9] min-h-[calc(100vh-3.5rem)] text-slate-800"}>
+      {/* Top Header & Breadcrumb (shown only in standalone view) */}
+      {!embedded && (
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-4 pb-2">
+          <div className="flex items-center space-x-2">
+            <div className="w-7 h-7 rounded flex items-center justify-center text-slate-700">
+              <MessageSquare className="w-5 h-5 text-slate-700" />
+            </div>
+            <div className="flex items-baseline space-x-2">
+              <h2 className="text-base font-bold text-slate-900 tracking-tight">SMS Service</h2>
+              <span className="text-xs text-slate-500 font-normal">SMS Gateway Setup</span>
+            </div>
           </div>
 
-          <button
-            title="Refresh Gateway"
-            onClick={() => notify('SMS Gateway balance & connection refreshed')}
-            className="w-7 h-7 rounded-full bg-[#162e3d] hover:bg-[#1b3a4b] text-white flex items-center justify-center shadow-xs transition-colors ml-2"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center space-x-2 text-xs">
+            <div className="flex items-center space-x-1 text-slate-500 font-medium">
+              <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
+              <span>SMS Service</span>
+              <span className="text-slate-400">&gt;</span>
+              <span className="text-slate-700 font-semibold">SMS Gateway Setup</span>
+            </div>
+
+            <button
+              title="Refresh Gateway"
+              onClick={() => notify('SMS Gateway balance & connection refreshed')}
+              className="w-7 h-7 rounded-full bg-[#162e3d] hover:bg-[#1b3a4b] text-white flex items-center justify-center shadow-xs transition-colors ml-2"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 4 Stat Metric Cards (Exact match to screenshot) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
